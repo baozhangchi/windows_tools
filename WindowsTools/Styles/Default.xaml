@@ -1,0 +1,168 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="System.Windows.xaml" />
+        <ResourceDictionary Source="Telerik.Windows.Controls.Navigation.xaml" />
+        <ResourceDictionary Source="Telerik.Windows.Controls.xaml" />
+        <ResourceDictionary Source="Telerik.Windows.Controls.Input.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+    <!--<Style TargetType="{x:Type TextBlock}">
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>-->
+    <Style BasedOn="{StaticResource LabelStyle}" TargetType="{x:Type telerik:Label}">
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style BasedOn="{StaticResource CheckBoxStyle}" TargetType="{x:Type CheckBox}">
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style BasedOn="{StaticResource RadWatermarkTextBoxStyle}" TargetType="{x:Type telerik:RadWatermarkTextBox}">
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style BasedOn="{StaticResource RadButtonStyle}" TargetType="{x:Type telerik:RadButton}">
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style BasedOn="{StaticResource RadComboBoxStyle}" TargetType="{x:Type telerik:RadComboBox}">
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style BasedOn="{StaticResource RadAutoSuggestBoxStyle}" TargetType="{x:Type telerik:RadAutoSuggestBox}">
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style BasedOn="{StaticResource RadAutoCompleteBoxStyle}" TargetType="{x:Type telerik:RadAutoCompleteBox}">
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style BasedOn="{StaticResource RadToggleSwitchButtonStyle}" TargetType="{x:Type telerik:RadToggleSwitchButton}">
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TrackWidth" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualWidth}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerik:RadToggleSwitchButton">
+                    <Grid
+                        Height="{TemplateBinding TrackHeight}"
+                        HorizontalAlignment="Center"
+                        SnapsToDevicePixels="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" MinWidth="{TemplateBinding ThumbWidth}" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" MinWidth="{TemplateBinding ThumbWidth}" />
+                        </Grid.ColumnDefinitions>
+                        <Rectangle
+                            x:Name="TrackBackground"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="3"
+                            Fill="{TemplateBinding Background}"
+                            Opacity="0"
+                            RadiusX="9"
+                            RadiusY="9"
+                            Stroke="{TemplateBinding BorderBrush}"
+                            StrokeThickness="{TemplateBinding BorderThickness}" />
+                        <Rectangle
+                            x:Name="UncheckedTrackBackground"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="3"
+                            Fill="{telerik:CrystalResource ResourceKey=MainBrush}"
+                            RadiusX="9"
+                            RadiusY="9"
+                            Stroke="{telerik:CrystalResource ResourceKey=AlternativeBasicBrush}"
+                            StrokeThickness="{TemplateBinding BorderThickness}" />
+                        <Ellipse
+                            x:Name="PART_Thumb"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="3"
+                            Width="{TemplateBinding ThumbWidth}"
+                            Height="{TemplateBinding ThumbHeight}"
+                            Margin="4,0"
+                            HorizontalAlignment="Left"
+                            Fill="{telerik:CrystalResource ResourceKey=MarkerInvertedBrush}"
+                            RenderTransformOrigin="0.5,0.5">
+                            <Ellipse.RenderTransform>
+                                <TranslateTransform X="0" Y="0" />
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                        <ContentPresenter
+                            x:Name="UncheckedContent"
+                            Grid.Column="2"
+                            Margin="{TemplateBinding Padding}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Content="{TemplateBinding UncheckedContent}"
+                            ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                            ContentTemplate="{TemplateBinding UncheckedContentTemplate}"
+                            RecognizesAccessKey="True"
+                            TextBlock.Foreground="{TemplateBinding Foreground}"
+                            Visibility="Collapsed" />
+
+                        <ContentPresenter
+                            x:Name="CheckedContent"
+                            Grid.Column="0"
+                            Margin="{TemplateBinding Padding}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Content="{TemplateBinding CheckedContent}"
+                            ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                            ContentTemplate="{TemplateBinding CheckedContentTemplate}"
+                            RecognizesAccessKey="True"
+                            TextBlock.Foreground="{telerik:CrystalResource ResourceKey=MarkerInvertedBrush}"
+                            Visibility="Collapsed" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsKeyboardFocused" Value="True" />
+                                <Condition Property="IsEnabled" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="TrackBackground" Property="Stroke" Value="{telerik:CrystalResource ResourceKey=AccentFocusedBrush}" />
+                            <Setter TargetName="UncheckedTrackBackground" Property="Stroke" Value="{telerik:CrystalResource ResourceKey=AccentFocusedBrush}" />
+                            <Setter Property="BorderThickness" Value="2" />
+                        </MultiTrigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="PART_Thumb" Property="Fill" Value="{telerik:CrystalResource ResourceKey=AccentMouseOverBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="False">
+                            <Setter TargetName="PART_Thumb" Property="Fill" Value="{telerik:CrystalResource ResourceKey=IconBrush}" />
+                            <Setter TargetName="UncheckedContent" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="CheckedContent" Property="Opacity" Value="0" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="TrackBackground" Property="Opacity" Value="1" />
+                            <Setter TargetName="UncheckedTrackBackground" Property="Opacity" Value="0" />
+                            <Setter TargetName="CheckedContent" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="UncheckedContent" Property="Opacity" Value="0" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="{x:Null}">
+                            <Setter TargetName="PART_Thumb" Property="Fill" Value="{telerik:CrystalResource ResourceKey=IconBrush}" />
+                            <Setter TargetName="TrackBackground" Property="Opacity" Value="0" />
+                            <Setter TargetName="UncheckedTrackBackground" Property="Opacity" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="PART_Thumb" Property="Fill" Value="{telerik:CrystalResource ResourceKey=AccentPressedBrush}" />
+                            <Setter TargetName="TrackBackground" Property="Stroke" Value="{telerik:CrystalResource ResourceKey=AccentBasicBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="CheckedContent" Property="Opacity" Value="{telerik:CrystalResource ResourceKey=DisabledOpacity}" />
+                            <Setter TargetName="UncheckedContent" Property="Opacity" Value="{telerik:CrystalResource ResourceKey=DisabledOpacity}" />
+                            <Setter TargetName="PART_Thumb" Property="Opacity" Value="{telerik:CrystalResource ResourceKey=DisabledOpacity}" />
+                            <Setter TargetName="PART_Thumb" Property="Fill" Value="{telerik:CrystalResource ResourceKey=IconBrush}" />
+                            <Setter TargetName="TrackBackground" Property="Stroke" Value="{telerik:CrystalResource ResourceKey=AlternativeBasicBrush}" />
+                            <Setter TargetName="TrackBackground" Property="Fill" Value="{telerik:CrystalResource ResourceKey=AlternativeBrush}" />
+                            <Setter TargetName="UncheckedTrackBackground" Property="Fill" Value="{telerik:CrystalResource ResourceKey=AlternativeBrush}" />
+                            <Setter TargetName="UncheckedTrackBackground" Property="Fill" Value="{telerik:CrystalResource ResourceKey=AlternativeBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
