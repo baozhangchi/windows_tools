@@ -3,7 +3,7 @@
 // // Project:  ReleaseUWPApplicationLoopbackProxyRestriction
 // // File:  EqualsConverter.cs
 // // CreateTime:  2023-01-03 8:38
-// // LastUpdateTime:  2023-01-03 8:51
+// // LastUpdateTime:  2023-01-05 9:23
 
 #endregion
 
@@ -19,13 +19,15 @@ namespace ReleaseUWPApplicationLoopbackProxyRestriction.Converters
 {
     internal class EqualsConverter : IValueConverter
     {
+        #region Fields
+
         private static EqualsConverter _instance;
         private static EqualsConverter _invertInstance;
         private bool _inverse;
 
-        private EqualsConverter()
-        {
-        }
+        #endregion
+
+        #region Properties
 
         public static EqualsConverter Instance
         {
@@ -51,6 +53,18 @@ namespace ReleaseUWPApplicationLoopbackProxyRestriction.Converters
             }
         }
 
+        #endregion
+
+        #region Constructors
+
+        private EqualsConverter()
+        {
+        }
+
+        #endregion
+
+        #region Methods
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null) return _inverse ? parameter != null : parameter == null;
@@ -62,5 +76,7 @@ namespace ReleaseUWPApplicationLoopbackProxyRestriction.Converters
         {
             throw new NotImplementedException();
         }
+
+        #endregion
     }
 }

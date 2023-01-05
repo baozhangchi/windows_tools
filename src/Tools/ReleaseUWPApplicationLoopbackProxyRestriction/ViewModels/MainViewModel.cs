@@ -3,7 +3,7 @@
 // // Project:  ReleaseUWPApplicationLoopbackProxyRestriction
 // // File:  MainViewModel.cs
 // // CreateTime:  2022-12-30 14:51
-// // LastUpdateTime:  2023-01-03 14:58
+// // LastUpdateTime:  2023-01-05 9:23
 
 #endregion
 
@@ -28,11 +28,37 @@ namespace ReleaseUWPApplicationLoopbackProxyRestriction.ViewModels
 {
     internal class MainViewModel : ToolViewModelBase
     {
+        #region Fields
+
         private ObservableCollection<AppxPackageInfo> _appxPackages;
         private RadListBox _appxPackagesView;
         private bool _isUpdating;
         private CheckBox _selectAllCheckBox;
         private List<AppxPackageInfo> _selectedAppxPackages;
+
+        #endregion
+
+        #region Properties
+
+        public ObservableCollection<AppxPackageInfo> AppxPackages
+        {
+            get => _appxPackages;
+            set => SetAndNotify(ref _appxPackages, value);
+        }
+
+        public bool CanCancelLiftRestrictions => _appxPackagesView?.SelectedItems.Count > 0;
+
+        public bool CanLiftRestrictions => _appxPackagesView?.SelectedItems.Count > 0;
+
+        public List<AppxPackageInfo> SelectedAppxPackages
+        {
+            get => _selectedAppxPackages;
+            set => SetAndNotify(ref _selectedAppxPackages, value);
+        }
+
+        #endregion
+
+        #region Constructors
 
         public MainViewModel() : base("解除UWP应用回环代理限制")
         {
@@ -55,32 +81,9 @@ namespace ReleaseUWPApplicationLoopbackProxyRestriction.ViewModels
             }
         }
 
-        public ObservableCollection<AppxPackageInfo> AppxPackages
-        {
-            get => _appxPackages;
-            set => SetAndNotify(ref _appxPackages, value);
-        }
+        #endregion
 
-        public List<AppxPackageInfo> SelectedAppxPackages
-        {
-            get => _selectedAppxPackages;
-            set => SetAndNotify(ref _selectedAppxPackages, value);
-        }
-
-        public bool CanLiftRestrictions => _appxPackagesView?.SelectedItems.Count > 0;
-
-        public bool CanCancelLiftRestrictions => _appxPackagesView?.SelectedItems.Count > 0;
-
-        protected override void OnViewLoaded()
-        {
-            base.OnViewLoaded();
-            if (View is MainView view)
-            {
-                _selectAllCheckBox = view.SelectAllCheckBox;
-                _appxPackagesView = view.AppxPackagesView;
-            }
-        }
-
+        #region Methods
 
         public void SelectAllCheckBox_OnChecked(object sender, RoutedEventArgs e)
         {
@@ -121,21 +124,29 @@ namespace ReleaseUWPApplicationLoopbackProxyRestriction.ViewModels
         public void LiftRestrictions()
         {
             foreach (var packageInfo in _appxPackagesView.SelectedItems.Cast<AppxPackageInfo>().ToList())
-            {
                 PowerShell.RunScript($"CheckNetIsolation LoopbackExempt -a -n=\"{packageInfo.PackageFamilyName}\"");
-            }
         }
 
         public void CancelLiftRestrictions()
         {
             foreach (var packageInfo in _appxPackagesView.SelectedItems.Cast<AppxPackageInfo>().ToList())
-            {
                 PowerShell.RunScript($"CheckNetIsolation LoopbackExempt -d -n=\"{packageInfo.PackageFamilyName}\"");
-            }
         }
 
         public void UpdateAppxPackages()
         {
         }
+
+        protected override void OnViewLoaded()
+        {
+            base.OnViewLoaded();
+            if (View is MainView view)
+            {
+                _selectAllCheckBox = view.SelectAllCheckBox;
+                _appxPackagesView = view.AppxPackagesView;
+            }
+        }
+
+        #endregion
     }
 }

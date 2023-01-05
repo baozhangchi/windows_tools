@@ -3,14 +3,17 @@
 // // Project:  VisualSvnLicenseGetter
 // // File:  MainViewModel.cs
 // // CreateTime:  2023-01-03 17:49
-// // LastUpdateTime:  2023-01-04 17:23
+// // LastUpdateTime:  2023-01-05 9:42
 
 #endregion
 
 #region Nmaespaces
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,6 +24,7 @@ using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Win32;
 using Stylet;
 using Tool.Core;
+using VisualSvnLicenseGetter.Properties;
 using VisualSvnLicenseGetter.Views;
 
 #endregion
@@ -29,6 +33,8 @@ namespace VisualSvnLicenseGetter.ViewModels
 {
     internal class MainViewModel : ToolViewModelBase
     {
+        #region Fields
+
         private string _baseUrl;
         private bool _canEdit;
         private string _code;
@@ -38,62 +44,35 @@ namespace VisualSvnLicenseGetter.ViewModels
         private string _name;
         private string _organization;
         private string _svnVersion;
+        private ObservableCollection<string> _versionHistory;
         private WebView2 _webView;
 
-        public MainViewModel() : base("VisualSVN许可证获取")
-        {
-        }
+        #endregion
 
-        public string SvnVersion
-        {
-            get => _svnVersion;
-            set => SetAndNotify(ref _svnVersion, value);
-        }
+        #region Properties
 
-        public string Name
-        {
-            get => _name;
-            set => SetAndNotify(ref _name, value);
-        }
+        /// <summary>
+        /// 能否复制证书内容到剪贴板
+        /// </summary>
+        public bool CanCopyToClipboard => !string.IsNullOrWhiteSpace(License);
 
-        public string Organization
-        {
-            get => _organization;
-            set => SetAndNotify(ref _organization, value);
-        }
-
-        public string Email
-        {
-            get => _email;
-            set => SetAndNotify(ref _email, value);
-        }
-
-        public string Code
-        {
-            get => _code;
-            set => SetAndNotify(ref _code, value);
-        }
-
-        public string License
-        {
-            get => _license;
-            set => SetAndNotify(ref _license, value);
-        }
-
+        /// <summary>
+        /// 能否填写申请内容
+        /// </summary>
         public bool CanEdit
         {
             get => _canEdit;
             set => SetAndNotify(ref _canEdit, value);
         }
 
+        /// <summary>
+        /// 能否加载申请信息
+        /// </summary>
         public bool CanLoadInfo => !string.IsNullOrWhiteSpace(SvnVersion);
 
-        public BitmapImage CodeImageSource
-        {
-            get => _codeImageSource;
-            set => SetAndNotify(ref _codeImageSource, value);
-        }
-
+        /// <summary>
+        /// 能否申请证书
+        /// </summary>
         public bool CanRequestLicense => !string.IsNullOrWhiteSpace(Name)
                                          && !string.IsNullOrWhiteSpace(Email)
                                          && !string.IsNullOrWhiteSpace(Code) &&
@@ -103,10 +82,98 @@ namespace VisualSvnLicenseGetter.ViewModels
                                          "https://www.visualsvn.com/server/licensing/evaluation/" &&
                                          string.IsNullOrWhiteSpace(License);
 
+        /// <summary>
+        /// 能否保存到文件
+        /// </summary>
         public bool CanSaveToFile => !string.IsNullOrWhiteSpace(License);
 
-        public bool CanCopyToClipboard => !string.IsNullOrWhiteSpace(License);
+        /// <summary>
+        /// 验证码
+        /// </summary>
+        public string Code
+        {
+            get => _code;
+            set => SetAndNotify(ref _code, value);
+        }
 
+        /// <summary>
+        /// 验证码图片
+        /// </summary>
+        public BitmapImage CodeImageSource
+        {
+            get => _codeImageSource;
+            set => SetAndNotify(ref _codeImageSource, value);
+        }
+
+        /// <summary>
+        /// 邮箱
+        /// </summary>
+        public string Email
+        {
+            get => _email;
+            set => SetAndNotify(ref _email, value);
+        }
+
+        /// <summary>
+        /// 许可证内容
+        /// </summary>
+        public string License
+        {
+            get => _license;
+            set => SetAndNotify(ref _license, value);
+        }
+
+        /// <summary>
+        /// 名称
+        /// </summary>
+        public string Name
+        {
+            get => _name;
+            set => SetAndNotify(ref _name, value);
+        }
+
+        /// <summary>
+        /// 组织
+        /// </summary>
+        public string Organization
+        {
+            get => _organization;
+            set => SetAndNotify(ref _organization, value);
+        }
+
+        /// <summary>
+        /// SVN版本
+        /// </summary>
+        public string SvnVersion
+        {
+            get => _svnVersion;
+            set => SetAndNotify(ref _svnVersion, value);
+        }
+
+        /// <summary>
+        /// SVN版本输入历史
+        /// </summary>
+        public ObservableCollection<string> VersionHistory
+        {
+            get => _versionHistory;
+            set => SetAndNotify(ref _versionHistory, value);
+        }
+
+        #endregion
+
+        #region Constructors
+
+        public MainViewModel() : base("VisualSVN许可证获取")
+        {
+        }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        ///     加载信息
+        /// </summary>
         public void LoadInfo()
         {
             _baseUrl = $"https://www.visualsvn.com/go/2196/?v={SvnVersion}";
@@ -114,38 +181,9 @@ namespace VisualSvnLicenseGetter.ViewModels
             License = string.Empty;
         }
 
-        private async void WebViewNavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
-        {
-            NotifyOfPropertyChange(nameof(CanRequestLicense));
-            if (_webView.CoreWebView2 != null)
-                switch (_webView.CoreWebView2.Source)
-                {
-                    case "https://www.visualsvn.com/server/licensing/evaluation/":
-                        if (await ServiceValidate())
-                            GetLicense();
-                        else
-                            License = string.Empty;
-                        break;
-                }
-        }
-
-        private async void GetLicense()
-        {
-            var licenseDom = await _webView.CoreWebView2.ExecuteScriptAsync(
-                "document.getElementById('Content_Content_Content_evaluationKey')");
-            if (licenseDom != "null")
-            {
-                var license =
-                    await _webView.CoreWebView2.ExecuteScriptAsync(
-                        "document.getElementById('Content_Content_Content_evaluationKey').innerHTML");
-                License = license == "null"
-                    ? string.Empty
-                    : string.Join(Environment.NewLine,
-                        license.Trim('"').Split(new[] { "\\r", "\\n" }, StringSplitOptions.RemoveEmptyEntries));
-            }
-            //License = string.Empty;
-        }
-
+        /// <summary>
+        ///     请求许可证
+        /// </summary>
         public void RequestLicense()
         {
             _webView.CoreWebView2.ExecuteScriptAsync(
@@ -161,6 +199,9 @@ namespace VisualSvnLicenseGetter.ViewModels
             CanEdit = false;
         }
 
+        /// <summary>
+        ///     保存到文件
+        /// </summary>
         public void SaveToFile()
         {
             var dialog = new SaveFileDialog();
@@ -172,6 +213,9 @@ namespace VisualSvnLicenseGetter.ViewModels
             }
         }
 
+        /// <summary>
+        ///     拷贝到剪贴板
+        /// </summary>
         public void CopyToClipboard()
         {
             Clipboard.SetText(License);
@@ -195,6 +239,19 @@ namespace VisualSvnLicenseGetter.ViewModels
                     NotifyOfPropertyChange(nameof(CanRequestLicense));
                     NotifyOfPropertyChange(nameof(CanCopyToClipboard));
                     NotifyOfPropertyChange(nameof(CanSaveToFile));
+                    if (!string.IsNullOrWhiteSpace(License))
+                    {
+                        var oldVersions = string.IsNullOrWhiteSpace(Settings.Default.Versions)
+                            ? new List<string>()
+                            : Settings.Default.Versions
+                                .Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        oldVersions.Add(SvnVersion);
+                        VersionHistory = new ObservableCollection<string>(oldVersions.Distinct());
+                        Settings.Default.Versions =
+                            string.Join(";", VersionHistory);
+                        Settings.Default.Save();
+                    }
+
                     break;
             }
         }
@@ -202,15 +259,56 @@ namespace VisualSvnLicenseGetter.ViewModels
         protected override void OnViewLoaded()
         {
             base.OnViewLoaded();
+            VersionHistory = string.IsNullOrWhiteSpace(Settings.Default.Versions)
+                ? new ObservableCollection<string>()
+                : new ObservableCollection<string>(Settings.Default.Versions
+                    .Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries));
             if (View is MainView view)
+                if (_webView == null)
+                {
+                    _webView = view.WebView;
+                    _webView.NavigationCompleted += WebViewNavigationCompleted;
+                    InitializeWebViewAsync();
+                }
+        }
+
+        private async void WebViewNavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        {
+            NotifyOfPropertyChange(nameof(CanRequestLicense));
+            if (_webView.CoreWebView2 != null)
+                switch (_webView.CoreWebView2.Source)
+                {
+                    case "https://www.visualsvn.com/server/licensing/evaluation/":
+                        if (await ServiceValidate())
+                            GetLicense();
+                        else
+                            License = string.Empty;
+                        break;
+                }
+        }
+
+        /// <summary>
+        /// 获取许可证内容
+        /// </summary>
+        private async void GetLicense()
+        {
+            var licenseDom = await _webView.CoreWebView2.ExecuteScriptAsync(
+                "document.getElementById('Content_Content_Content_evaluationKey')");
+            if (licenseDom != "null")
             {
-                _webView = view.WebView;
-                _webView.NavigationCompleted -= WebViewNavigationCompleted;
-                _webView.NavigationCompleted += WebViewNavigationCompleted;
-                InitializeWebViewAsync();
+                var license =
+                    await _webView.CoreWebView2.ExecuteScriptAsync(
+                        "document.getElementById('Content_Content_Content_evaluationKey').innerHTML");
+                License = license == "null"
+                    ? string.Empty
+                    : string.Join(Environment.NewLine,
+                        license.Trim('"').Split(new[] { "\\r", "\\n" }, StringSplitOptions.RemoveEmptyEntries));
             }
         }
 
+        /// <summary>
+        /// 初始化WebView
+        /// </summary>
         private async void InitializeWebViewAsync()
         {
             await _webView.EnsureCoreWebView2Async(null);
@@ -225,21 +323,7 @@ namespace VisualSvnLicenseGetter.ViewModels
             var status = e.Response.StatusCode;
             if (status == 200)
             {
-                if (e.Request.Uri == "https://www.visualsvn.com/server/licensing/evaluation/")
-                {
-                    //switch (e.Request.Method)
-                    //{
-                    //    case "GET":
-                    //        License = string.Empty;
-                    //        break;
-                    //    case "POST":
-                    //        if (await ServiceValidate())
-                    //            GetLicense();
-                    //        break;
-                    //}
-                }
-                else if (e.Request.Uri.Contains("Captcha.aspx"))
-                {
+                if (e.Request.Uri.Contains("Captcha.aspx"))
                     try
                     {
                         using (var stream = new MemoryStream())
@@ -264,14 +348,15 @@ namespace VisualSvnLicenseGetter.ViewModels
                         CanEdit = false;
                         // A COMException will be thrown if the content failed to load.
                     }
-                }
                 else
-                {
                     CanEdit = false;
-                }
             }
         }
 
+        /// <summary>
+        /// 获取站点验证内容
+        /// </summary>
+        /// <returns></returns>
         private async Task<bool> ServiceValidate()
         {
             var error = string.Empty;
@@ -341,7 +426,6 @@ namespace VisualSvnLicenseGetter.ViewModels
                 {
                     if (task.IsFaulted)
                     {
-
                     }
                 });
                 return false;
@@ -349,5 +433,7 @@ namespace VisualSvnLicenseGetter.ViewModels
 
             return true;
         }
+
+        #endregion
     }
 }

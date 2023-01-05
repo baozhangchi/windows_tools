@@ -45,7 +45,10 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <telerik:RadAutoSuggestBox Text="{Binding Path=SvnVersion, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+            <telerik:RadComboBox
+                IsEditable="True"
+                ItemsSource="{Binding Path=VersionHistory}"
+                Text="{Binding Path=SvnVersion, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
             <telerik:RadButton
                 Grid.Column="1"
                 Command="{s:Action Method=LoadInfo,

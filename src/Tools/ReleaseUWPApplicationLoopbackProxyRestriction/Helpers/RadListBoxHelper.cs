@@ -3,7 +3,7 @@
 // // Project:  ReleaseUWPApplicationLoopbackProxyRestriction
 // // File:  RadListBoxHelper.cs
 // // CreateTime:  2023-01-03 9:04
-// // LastUpdateTime:  2023-01-03 14:39
+// // LastUpdateTime:  2023-01-05 9:23
 
 #endregion
 
@@ -21,6 +21,8 @@ namespace ReleaseUWPApplicationLoopbackProxyRestriction.Helpers
 {
     internal class RadListBoxHelper
     {
+        #region Fields
+
         // Using a DependencyProperty as the backing store for SelectedItems.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SelectedItemsProperty =
             DependencyProperty.RegisterAttached("SelectedItems", typeof(IList), typeof(RadListBoxHelper),
@@ -40,26 +42,9 @@ namespace ReleaseUWPApplicationLoopbackProxyRestriction.Helpers
             DependencyProperty.RegisterAttached("IsUpdating", typeof(bool), typeof(RadListBoxHelper),
                 new PropertyMetadata(false));
 
-        private static void OnAttachChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is RadListBox listBox)
-            {
-                if (!GetAttach(listBox))
-                    listBox.SelectionChanged -= OnSelectionChanged;
-                if (GetAttach(listBox))
-                    listBox.SelectionChanged += OnSelectionChanged;
-            }
-        }
+        #endregion
 
-        private static void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (sender is RadListBox listBox)
-            {
-                SetIsUpdating(listBox, true);
-                SetSelectedItems(listBox, listBox.SelectedItems);
-                SetIsUpdating(listBox, false);
-            }
-        }
+        #region Methods
 
         public static IList GetSelectedItems(DependencyObject obj)
         {
@@ -80,6 +65,27 @@ namespace ReleaseUWPApplicationLoopbackProxyRestriction.Helpers
         public static void SetAttach(DependencyObject obj, bool value)
         {
             obj.SetValue(AttachProperty, value);
+        }
+
+        private static void OnAttachChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is RadListBox listBox)
+            {
+                if (!GetAttach(listBox))
+                    listBox.SelectionChanged -= OnSelectionChanged;
+                if (GetAttach(listBox))
+                    listBox.SelectionChanged += OnSelectionChanged;
+            }
+        }
+
+        private static void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is RadListBox listBox)
+            {
+                SetIsUpdating(listBox, true);
+                SetSelectedItems(listBox, listBox.SelectedItems);
+                SetIsUpdating(listBox, false);
+            }
         }
 
 
@@ -109,5 +115,7 @@ namespace ReleaseUWPApplicationLoopbackProxyRestriction.Helpers
                 listBox.SelectionChanged += OnSelectionChanged;
             }
         }
+
+        #endregion
     }
 }
